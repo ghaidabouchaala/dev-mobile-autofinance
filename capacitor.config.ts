@@ -10,10 +10,16 @@ const config: CapacitorConfig = {
   appName: "AutoFinance",
   webDir: "dist",
   server: {
-    // Live published URL for the AutoFinance web app.
-    url: "https://autofinance-mobile.lovable.app",
+    // Load the /auth route directly. The root route performs a server redirect
+    // which can hit the Lovable SSR worker and occasionally fail with a 500; the
+    // /auth route is static and loads reliably in the native webview.
+    url: "https://autofinance-mobile.lovable.app/auth",
     cleartext: false,
     androidScheme: "https",
+    allowNavigation: [
+      "*.lovable.app",
+      "*.supabase.co",
+    ],
   },
   ios: {
     contentInset: "always",
