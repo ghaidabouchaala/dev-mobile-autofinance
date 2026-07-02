@@ -30,8 +30,12 @@ jobs:
           bun add @capacitor/android
           bunx cap add android || echo "Android platform already added"
 
-      - name: Build web assets
-        run: bun run build
+      - name: Create placeholder web assets
+        # The native shell loads the live web app via capacitor.config.ts
+        # server.url, so we only need a stub index.html to satisfy cap sync.
+        run: |
+          mkdir -p dist
+          echo '<!doctype html><title>AutoFinance</title>' > dist/index.html
 
       - name: Sync Capacitor
         run: bunx cap sync android
