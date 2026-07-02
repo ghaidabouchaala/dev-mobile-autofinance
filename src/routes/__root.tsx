@@ -100,6 +100,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "AutoFinance Mobile" },
+      { name: "description", content: "A mobile app for sharing data across multiple applications using a unified API." },
+      { property: "og:description", content: "A mobile app for sharing data across multiple applications using a unified API." },
+      { name: "twitter:description", content: "A mobile app for sharing data across multiple applications using a unified API." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/25c6693d-73a2-4393-b7f1-b7aa3fa31a6b/id-preview-251ebe31--67ea133b-e51c-4ec5-a945-ec9f159404c9.lovable.app-1782999537750.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/25c6693d-73a2-4393-b7f1-b7aa3fa31a6b/id-preview-251ebe31--67ea133b-e51c-4ec5-a945-ec9f159404c9.lovable.app-1782999537750.png" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
