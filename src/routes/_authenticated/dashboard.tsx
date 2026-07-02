@@ -36,10 +36,6 @@ function DashboardPage() {
     },
   });
 
-  const totalValue = (data?.contracts ?? []).reduce(
-    (sum, c) => sum + (Number(c.amount) || 0),
-    0,
-  );
   const pending = (data?.contracts ?? []).filter(
     (c) => String(c.status ?? "").toLowerCase() === "pending",
   ).length;
@@ -77,7 +73,7 @@ function DashboardPage() {
             Total Contracts
           </p>
           <h3 className="mt-1 text-lg font-semibold text-primary-foreground">
-            {isLoading ? "—" : formatCurrency(totalValue)}
+            {isLoading ? "—" : data?.contractsCount ?? 0}
           </h3>
         </div>
         <KpiCard label="Active Dealers" value={data?.dealersCount ?? 0} loading={isLoading} />
