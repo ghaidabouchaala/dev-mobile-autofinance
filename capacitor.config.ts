@@ -10,7 +10,10 @@ const config: CapacitorConfig = {
   appName: "AutoFinance",
   webDir: "dist",
   server: {
-    url: "https://id-preview--67ea133b-e51c-4ec5-a945-ec9f159404c9.lovable.app",
+    // Stable preview URL — serves the latest preview build without needing
+    // to publish. Swap to https://project--67ea133b-e51c-4ec5-a945-ec9f159404c9.lovable.app
+    // once you publish for a production APK.
+    url: "https://project--67ea133b-e51c-4ec5-a945-ec9f159404c9-dev.lovable.app",
     cleartext: false,
     androidScheme: "https",
   },
