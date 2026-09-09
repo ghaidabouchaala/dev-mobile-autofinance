@@ -7,6 +7,7 @@ on:
 
 jobs:
   build:
+    name: Build & sign debug APK
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -14,6 +15,14 @@ jobs:
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
+
+      - name: Cache Bun dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.bun/install/cache
+          key: ${{ runner.os }}-bun-${{ hashFiles('bun.lockb', 'package.json') }}
+          restore-keys: |
+            ${{ runner.os }}-bun-
 
       - uses: actions/setup-java@v4
         with:
@@ -69,9 +78,14 @@ jobs:
 
           "$APKSIGNER" verify --verbose --print-certs android/app/build/outputs/apk/debug/autofinance-debug-signed.apk
 
-      - name: Upload APK
+      - name: Upload signed APK
         uses: actions/upload-artifact@v4
         with:
-          name: autofinance-debug-apk
+          name: autofinance-debug-signed-apk
           path: android/app/build/outputs/apk/debug/autofinance-debug-signed.apk
           if-no-files-found: error
+
+      - name: Summary
+        run: |
+          echo "✅ AutoFinance debug APK built and signed."
+          echo "Download it from the Actions artifacts: autofinance-debug-signed-apk"
