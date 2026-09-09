@@ -17,6 +17,7 @@ import { Route as AuthenticatedDocumentsRouteImport } from './routes/_authentica
 import { Route as AuthenticatedDealersRouteImport } from './routes/_authenticated/dealers'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedContractsRouteImport } from './routes/_authenticated/contracts'
+import { Route as ApiPublicDashboardStatsRouteImport } from './routes/api/public/dashboard-stats'
 import { Route as AuthenticatedContractsIdRouteImport } from './routes/_authenticated/contracts.$id'
 
 const AuthRoute = AuthRouteImport.update({
@@ -58,6 +59,11 @@ const AuthenticatedContractsRoute = AuthenticatedContractsRouteImport.update({
   path: '/contracts',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const ApiPublicDashboardStatsRoute = ApiPublicDashboardStatsRouteImport.update({
+  id: '/api/public/dashboard-stats',
+  path: '/api/public/dashboard-stats',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedContractsIdRoute =
   AuthenticatedContractsIdRouteImport.update({
     id: '/$id',
@@ -74,6 +80,7 @@ export interface FileRoutesByFullPath {
   '/documents': typeof AuthenticatedDocumentsRoute
   '/payments': typeof AuthenticatedPaymentsRoute
   '/contracts/$id': typeof AuthenticatedContractsIdRoute
+  '/api/public/dashboard-stats': typeof ApiPublicDashboardStatsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -84,6 +91,7 @@ export interface FileRoutesByTo {
   '/documents': typeof AuthenticatedDocumentsRoute
   '/payments': typeof AuthenticatedPaymentsRoute
   '/contracts/$id': typeof AuthenticatedContractsIdRoute
+  '/api/public/dashboard-stats': typeof ApiPublicDashboardStatsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -96,6 +104,7 @@ export interface FileRoutesById {
   '/_authenticated/documents': typeof AuthenticatedDocumentsRoute
   '/_authenticated/payments': typeof AuthenticatedPaymentsRoute
   '/_authenticated/contracts/$id': typeof AuthenticatedContractsIdRoute
+  '/api/public/dashboard-stats': typeof ApiPublicDashboardStatsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -108,6 +117,7 @@ export interface FileRouteTypes {
     | '/documents'
     | '/payments'
     | '/contracts/$id'
+    | '/api/public/dashboard-stats'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -118,6 +128,7 @@ export interface FileRouteTypes {
     | '/documents'
     | '/payments'
     | '/contracts/$id'
+    | '/api/public/dashboard-stats'
   id:
     | '__root__'
     | '/'
@@ -129,12 +140,14 @@ export interface FileRouteTypes {
     | '/_authenticated/documents'
     | '/_authenticated/payments'
     | '/_authenticated/contracts/$id'
+    | '/api/public/dashboard-stats'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  ApiPublicDashboardStatsRoute: typeof ApiPublicDashboardStatsRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -195,6 +208,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedContractsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/api/public/dashboard-stats': {
+      id: '/api/public/dashboard-stats'
+      path: '/api/public/dashboard-stats'
+      fullPath: '/api/public/dashboard-stats'
+      preLoaderRoute: typeof ApiPublicDashboardStatsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/contracts/$id': {
       id: '/_authenticated/contracts/$id'
       path: '/$id'
@@ -242,6 +262,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  ApiPublicDashboardStatsRoute: ApiPublicDashboardStatsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
