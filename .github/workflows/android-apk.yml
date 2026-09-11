@@ -1,4 +1,4 @@
-name: Build Android APK
+name: Build Android APK & iOS App
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  build-android:
     name: Build & sign debug APK
     runs-on: ubuntu-latest
     steps:
@@ -89,3 +89,73 @@ jobs:
         run: |
           echo "✅ AutoFinance debug APK built and signed."
           echo "Download it from the Actions artifacts: autofinance-debug-signed-apk"
+
+  build-ios:
+    name: Build iOS Simulator app
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Cache Bun dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.bun/install/cache
+          key: ${{ runner.os }}-bun-${{ hashFiles('bun.lockb', 'package.json') }}
+          restore-keys: |
+            ${{ runner.os }}-bun-
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Add Capacitor iOS platform
+        run: |
+          bunx cap add ios || echo "iOS platform already added"
+
+      - name: Create placeholder web assets
+        run: |
+          mkdir -p dist
+          echo '<!doctype html><title>AutoFinance</title>' > dist/index.html
+
+      - name: Sync Capacitor
+        run: bunx cap sync ios
+
+      - name: Build iOS app for Simulator
+        working-directory: ios/App
+        run: |
+          xcodebuild \
+            -workspace App.xcworkspace \
+            -scheme App \
+            -sdk iphonesimulator \
+            -configuration Debug \
+            -derivedDataPath ./DerivedData \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            build
+
+      - name: Locate built Simulator app
+        working-directory: ios/App
+        run: |
+          APP_PATH=$(find ./DerivedData -name 'AutoFinance.app' -type d | head -n 1)
+          if [ -z "$APP_PATH" ]; then
+            echo "Could not find AutoFinance.app in DerivedData"
+            exit 1
+          fi
+          echo "APP_PATH=$APP_PATH" >> "$GITHUB_ENV"
+          echo "Found app at $APP_PATH"
+
+      - name: Upload iOS Simulator app
+        uses: actions/upload-artifact@v4
+        with:
+          name: autofinance-ios-simulator-app
+          path: ${{ env.APP_PATH }}
+          if-no-files-found: error
+
+      - name: Summary
+        run: |
+          echo "✅ AutoFinance iOS Simulator app built."
+          echo "Download it from the Actions artifacts: autofinance-ios-simulator-app"
+          echo "Note: this is an unsigned Simulator .app. A device-installable .ipa requires an Apple Developer account and signing certificate."
