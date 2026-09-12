@@ -34,17 +34,16 @@ jobs:
       - name: Install dependencies
         run: bun install
 
-      - name: Add Capacitor Android platform
-        run: |
-          bun add @capacitor/android
-          bunx cap add android || echo "Android platform already added"
-
       - name: Create placeholder web assets
         # The native shell loads the live web app via capacitor.config.ts
         # server.url, so we only need a stub index.html to satisfy cap sync.
         run: |
           mkdir -p dist
           echo '<!doctype html><title>AutoFinance</title>' > dist/index.html
+
+      - name: Add Capacitor Android platform
+        run: bunx cap add android || echo "Android platform already added"
+
 
       - name: Sync Capacitor
         run: bunx cap sync android
@@ -93,6 +92,8 @@ jobs:
   build-ios:
     name: Build iOS Simulator app
     runs-on: macos-latest
+    # iOS is a bonus artifact; a failure here must not fail the APK build.
+    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
 
@@ -111,14 +112,14 @@ jobs:
       - name: Install dependencies
         run: bun install
 
-      - name: Add Capacitor iOS platform
-        run: |
-          bunx cap add ios || echo "iOS platform already added"
-
       - name: Create placeholder web assets
         run: |
           mkdir -p dist
           echo '<!doctype html><title>AutoFinance</title>' > dist/index.html
+
+      - name: Add Capacitor iOS platform
+        run: bunx cap add ios || echo "iOS platform already added"
+
 
       - name: Sync Capacitor
         run: bunx cap sync ios
@@ -139,9 +140,9 @@ jobs:
       - name: Locate built Simulator app
         working-directory: ios/App
         run: |
-          APP_PATH=$(find ./DerivedData -name 'AutoFinance.app' -type d | head -n 1)
+          APP_PATH=$(find ./DerivedData -name '*.app' -type d | head -n 1)
           if [ -z "$APP_PATH" ]; then
-            echo "Could not find AutoFinance.app in DerivedData"
+            echo "Could not find a built .app in DerivedData"
             exit 1
           fi
           echo "APP_PATH=$APP_PATH" >> "$GITHUB_ENV"
