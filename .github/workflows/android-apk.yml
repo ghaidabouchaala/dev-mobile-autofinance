@@ -92,6 +92,8 @@ jobs:
   build-ios:
     name: Build iOS Simulator app
     runs-on: macos-latest
+    # iOS is a bonus artifact; a failure here must not fail the APK build.
+    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
 
