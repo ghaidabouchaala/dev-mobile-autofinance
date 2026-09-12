@@ -112,14 +112,14 @@ jobs:
       - name: Install dependencies
         run: bun install
 
-      - name: Add Capacitor iOS platform
-        run: |
-          bunx cap add ios || echo "iOS platform already added"
-
       - name: Create placeholder web assets
         run: |
           mkdir -p dist
           echo '<!doctype html><title>AutoFinance</title>' > dist/index.html
+
+      - name: Add Capacitor iOS platform
+        run: bunx cap add ios || echo "iOS platform already added"
+
 
       - name: Sync Capacitor
         run: bunx cap sync ios
