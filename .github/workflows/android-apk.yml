@@ -140,9 +140,9 @@ jobs:
       - name: Locate built Simulator app
         working-directory: ios/App
         run: |
-          APP_PATH=$(find ./DerivedData -name 'AutoFinance.app' -type d | head -n 1)
+          APP_PATH=$(find ./DerivedData -name '*.app' -type d | head -n 1)
           if [ -z "$APP_PATH" ]; then
-            echo "Could not find AutoFinance.app in DerivedData"
+            echo "Could not find a built .app in DerivedData"
             exit 1
           fi
           echo "APP_PATH=$APP_PATH" >> "$GITHUB_ENV"
