@@ -124,17 +124,30 @@ jobs:
       - name: Sync Capacitor
         run: bunx cap sync ios
 
+      - name: Install CocoaPods dependencies
+        working-directory: ios/App
+        run: |
+          gem install cocoapods --no-document || sudo gem install cocoapods --no-document
+          pod install --repo-update
+
       - name: Build iOS app for Simulator
         working-directory: ios/App
         run: |
+          if [ -d App.xcworkspace ]; then
+            CONTAINER_FLAG=(-workspace App.xcworkspace)
+          else
+            CONTAINER_FLAG=(-project App.xcodeproj)
+          fi
           xcodebuild \
-            -workspace App.xcworkspace \
+            "${CONTAINER_FLAG[@]}" \
             -scheme App \
             -sdk iphonesimulator \
+            -destination 'generic/platform=iOS Simulator' \
             -configuration Debug \
             -derivedDataPath ./DerivedData \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO \
             build
 
       - name: Locate built Simulator app
