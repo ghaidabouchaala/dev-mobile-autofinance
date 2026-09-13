@@ -80,7 +80,7 @@ function ContractDetailPage() {
             </div>
 
             <div className="grid grid-cols-2 gap-y-4">
-              <Field label="Dealer" value={contract.dealer_name ?? contract.dealer ?? "—"} />
+              <Field label="Dealer" value={dealerLabel} />
               <Field
                 label="Amount"
                 value={
