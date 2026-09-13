@@ -13,31 +13,62 @@ export const Route = createFileRoute("/_authenticated/contracts")({
 const FILTERS = ["all", "pending", "funded", "sent_back"] as const;
 type Filter = (typeof FILTERS)[number];
 
+function filterLabel(f: Filter) {
+  return f === "all" ? "All" : f === "sent_back" ? "Sent Back" : f[0].toUpperCase() + f.slice(1);
+}
+
 function ContractsPage() {
   const [filter, setFilter] = useState<Filter>("all");
   const [q, setQ] = useState("");
 
   const { data, isLoading } = useQuery({
-    queryKey: ["contracts", filter],
+    queryKey: ["contracts"],
     queryFn: async () => {
-      let query = supabase
+      const { data, error } = await supabase
         .from("contracts")
         .select("*")
         .order("created_at", { ascending: false })
-        .limit(100);
-      if (filter !== "all") query = query.eq("status", filter);
-      const { data, error } = await query;
+        .limit(200);
       if (error) throw error;
-      return data ?? [];
+      return (data ?? []) as Record<string, any>[];
     },
   });
 
-  const filtered = (data ?? []).filter((c: any) => {
+  const { data: dealerNames } = useQuery({
+    queryKey: ["dealer-names"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("dealers").select("*").limit(500);
+      if (error) throw error;
+      const map: Record<string, string> = {};
+      for (const d of (data ?? []) as Record<string, any>[]) {
+        const name =
+          d.name ?? d.dealer_name ?? d.business_name ?? d.legal_name ?? d.company_name;
+        if (d.id != null && name) map[String(d.id)] = String(name);
+      }
+      return map;
+    },
+  });
+
+  const dealerLabel = (c: Record<string, any>) => {
+    const id = c.dealer_id ?? c.dealer ?? c.dealerId;
+    const fromTable = id != null ? dealerNames?.[String(id)] : undefined;
+    return (
+      c.dealer_name ??
+      fromTable ??
+      (id != null ? String(id) : "Unknown dealer")
+    );
+  };
+
+  const byStatus = (data ?? []).filter((c) =>
+    filter === "all" ? true : String(c.status ?? "").toLowerCase() === filter,
+  );
+
+  const filtered = byStatus.filter((c) => {
     if (!q) return true;
     const needle = q.toLowerCase();
-    return [c.contract_number, c.dealer_name, c.dealer]
+    return [c.contract_number, dealerLabel(c)]
       .filter(Boolean)
-      .some((v: string) => String(v).toLowerCase().includes(needle));
+      .some((v) => String(v).toLowerCase().includes(needle));
   });
 
   return (
@@ -52,20 +83,29 @@ function ContractsPage() {
         />
       </div>
 
-      <div className="mb-4 flex gap-2 overflow-x-auto pb-1">
-        {FILTERS.map((f) => (
-          <button
-            key={f}
-            onClick={() => setFilter(f)}
-            className={`shrink-0 rounded-full px-4 py-1.5 text-xs font-semibold uppercase tracking-wider transition ${
-              filter === f
-                ? "bg-foreground text-background"
-                : "bg-surface text-muted-foreground ring-1 ring-black/5"
-            }`}
-          >
-            {f === "all" ? "All" : f === "sent_back" ? "Sent Back" : f[0].toUpperCase() + f.slice(1)}
-          </button>
-        ))}
+      <div className="mb-4 flex gap-2 overflow-x-auto pb-1" role="group" aria-label="Filter contracts by status">
+        {FILTERS.map((f) => {
+          const label = filterLabel(f);
+          const selected = filter === f;
+          return (
+            <button
+              key={f}
+              id={`filter-chip-${f}`}
+              type="button"
+              aria-label={label}
+              aria-pressed={selected}
+              data-selected={selected ? "true" : "false"}
+              onClick={() => setFilter(f)}
+              className={`shrink-0 rounded-full px-4 py-1.5 text-xs font-semibold uppercase tracking-wider transition ${
+                selected
+                  ? "bg-foreground text-background ring-2 ring-primary/40"
+                  : "bg-surface text-muted-foreground ring-1 ring-black/5"
+              }`}
+            >
+              {label}
+            </button>
+          );
+        })}
       </div>
 
       <div className="divide-y divide-black/5 rounded-[20px] bg-surface ring-1 ring-black/5">
@@ -77,17 +117,18 @@ function ContractsPage() {
             No contracts match.
           </div>
         )}
-        {filtered.map((c: any) => (
+        {filtered.map((c) => (
           <Link
             key={c.id}
+            id={`contract-row-${c.contract_number ?? c.id}`}
             to="/contracts/$id"
             params={{ id: String(c.id) }}
+            role="link"
+            aria-label={`Open contract ${c.contract_number ?? c.id}`}
             className="flex items-center justify-between gap-3 p-4 transition active:bg-black/[.02]"
           >
             <div className="min-w-0">
-              <p className="truncate text-sm font-semibold">
-                {c.dealer_name ?? c.dealer ?? "Unknown dealer"}
-              </p>
+              <p className="truncate text-sm font-semibold">{dealerLabel(c)}</p>
               <p className="mt-0.5 truncate text-xs text-muted-foreground">
                 {c.contract_number ?? String(c.id).slice(0, 8)}
                 {c.amount != null ? ` • ${formatCurrency(Number(c.amount))}` : ""}
