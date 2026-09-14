@@ -20,6 +20,7 @@ function filterLabel(f: Filter) {
 function ContractsPage() {
   const [filter, setFilter] = useState<Filter>("all");
   const [q, setQ] = useState("");
+  const navigate = useNavigate({ from: "/contracts" });
 
   const { data, isLoading } = useQuery({
     queryKey: ["contracts"],
