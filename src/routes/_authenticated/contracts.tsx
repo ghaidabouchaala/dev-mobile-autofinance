@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { supabase } from "@/lib/supabase";
@@ -20,6 +20,7 @@ function filterLabel(f: Filter) {
 function ContractsPage() {
   const [filter, setFilter] = useState<Filter>("all");
   const [q, setQ] = useState("");
+  const navigate = useNavigate({ from: "/contracts" });
 
   const { data, isLoading } = useQuery({
     queryKey: ["contracts"],
@@ -118,14 +119,18 @@ function ContractsPage() {
           </div>
         )}
         {filtered.map((c) => (
-          <Link
+          <button
             key={c.id}
             id={`contract-row-${c.contract_number ?? c.id}`}
-            to="/contracts/$id"
-            params={{ id: String(c.id) }}
-            role="link"
+            type="button"
             aria-label={`Open contract ${c.contract_number ?? c.id}`}
-            className="flex items-center justify-between gap-3 p-4 transition active:bg-black/[.02]"
+            onClick={() =>
+              navigate({
+                to: "/contracts/$id",
+                params: { id: String(c.id) },
+              })
+            }
+            className="flex w-full items-center justify-between gap-3 p-4 text-left transition active:bg-black/[.02]"
           >
             <div className="min-w-0">
               <p className="truncate text-sm font-semibold">{dealerLabel(c)}</p>
@@ -135,7 +140,7 @@ function ContractsPage() {
               </p>
             </div>
             <StatusPill status={c.status ?? "pending"} />
-          </Link>
+          </button>
         ))}
       </div>
     </MobileShell>
