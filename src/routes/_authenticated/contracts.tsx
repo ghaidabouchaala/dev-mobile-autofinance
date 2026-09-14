@@ -118,14 +118,18 @@ function ContractsPage() {
           </div>
         )}
         {filtered.map((c) => (
-          <Link
+          <button
             key={c.id}
             id={`contract-row-${c.contract_number ?? c.id}`}
-            to="/contracts/$id"
-            params={{ id: String(c.id) }}
-            role="link"
+            type="button"
             aria-label={`Open contract ${c.contract_number ?? c.id}`}
-            className="flex items-center justify-between gap-3 p-4 transition active:bg-black/[.02]"
+            onClick={() =>
+              navigate({
+                to: "/contracts/$id",
+                params: { id: String(c.id) },
+              })
+            }
+            className="flex w-full items-center justify-between gap-3 p-4 text-left transition active:bg-black/[.02]"
           >
             <div className="min-w-0">
               <p className="truncate text-sm font-semibold">{dealerLabel(c)}</p>
@@ -135,7 +139,7 @@ function ContractsPage() {
               </p>
             </div>
             <StatusPill status={c.status ?? "pending"} />
-          </Link>
+          </button>
         ))}
       </div>
     </MobileShell>
