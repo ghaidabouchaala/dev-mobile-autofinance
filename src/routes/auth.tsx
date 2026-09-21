@@ -49,11 +49,11 @@ function AuthPage() {
 
       <form onSubmit={onSubmit} className="space-y-4">
         <div className="space-y-1.5">
-          <label htmlFor="email-user" className="ml-1 text-sm font-medium">
+          <label htmlFor="email-email-user-user" className="ml-1 text-sm font-medium">
             Email address
           </label>
           <input
-            id="email-user"
+            id="email-email-user-user"
             type="email"
             autoComplete="email"
             required
