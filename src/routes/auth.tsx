@@ -64,11 +64,11 @@ function AuthPage() {
           />
         </div>
         <div className="space-y-1.5">
-          <label htmlFor="password" className="ml-1 text-sm font-medium">
+          <label htmlFor="user-password" className="ml-1 text-sm font-medium">
             Password
           </label>
           <input
-            id="password"
+            id="user-password"
             type="password"
             autoComplete="current-password"
             required
